@@ -19,41 +19,42 @@ def start(update: Update, context: CallbackContext):
 def process_number(update: Update, context: CallbackContext):
     number = update.message.text.replace('num', '').strip()  # Remove 'num' prefix and strip spaces
     api_url = f'https://teamxfire.com/Nidinxx/Vx.php?number={number}'
-    
+
     try:
         # Set the timeout for the API request
-        timeout = 25  # 10 seconds
+        timeout = 10  # 10 seconds
         start_time = time.time()
         response = requests.get(api_url, timeout=timeout)
         elapsed_time = time.time() - start_time
-        
-        if response.status_code == 200 and response.json()['status'] == 'success':
-            data = response.json()
-            
-            user_imei = data['User_IMEI']
-            user_imsi = data['User_IMSI']
-            user_last_action = data['User_time_last_action']
-            user_region = data['User_REGION']
-            user_division = data['User_DIVISON']
-            user_district = data['User_DISTRICT']
-            user_thana = data['User_THANA']
-            user_union_name = data['User_UNION_NAME']
-            user_loc_long = data['User_LOC_LONG']
-            user_loc_lat = data['User_LOC_LAT']
-            
+
+        if response.status_code == 200:
+            data = response.json().get('GetSubscriberDataResult', {})
+
+            # Extract the required data fields
+            user_imei = data.get('User_IMEI', '')
+            user_imsi = data.get('User_IMSI', '')
+            user_time_last_action = data.get('User_time_last_action', '')
+            user_region = data.get('User_REGION', '')
+            user_division = data.get('User_DIVISON', '')
+            user_district = data.get('User_DISTRICT', '')
+            user_thana = data.get('User_THANA', '')
+            user_union_name = data.get('User_UNION_NAME', '')
+            user_loc_long = data.get('User_LOC_LONG', '')
+            user_loc_lat = data.get('User_LOC_LAT', '')
+
             # Format the response with emojis
-            response_text = f'✅ Here is the information for number {number}:\n\n' \
-                            f'📱 User IMEI: {user_imei}\n' \
-                            f'📲 User IMSI: {user_imsi}\n' \
-                            f'⏰ User Last Action Time: {user_last_action}\n' \
-                            f'🗺️ User Region: {user_region}\n' \
-                            f'🌍 User Division: {user_division}\n' \
-                            f'🏢 User District: {user_district}\n' \
-                            f'🏪 User Thana: {user_thana}\n' \
-                            f'🏘️ User Union Name: {user_union_name}\n' \
-                            f'📍 User Location Longitude: {user_loc_long}\n' \
-                            f'📍 User Location Latitude: {user_loc_lat}'
-            
+            response_text = f'✅ Information for number {number}:\n\n' \
+                            f'🔹 User_IMEI: {user_imei}\n' \
+                            f'🔹 User_IMSI: {user_imsi}\n' \
+                            f'🔹 User_time_last_action: {user_time_last_action}\n' \
+                            f'🔹 User_REGION: {user_region}\n' \
+                            f'🔹 User_DIVISION: {user_division}\n' \
+                            f'🔹 User_DISTRICT: {user_district}\n' \
+                            f'🔹 User_THANA: {user_thana}\n' \
+                            f'🔹 User_UNION_NAME: {user_union_name}\n' \
+                            f'🔹 User_LOC_LONG: {user_loc_long}\n' \
+                            f'🔹 User_LOC_LAT: {user_loc_lat}'
+
             if elapsed_time >= timeout:
                 response_text += '\n\n⚠️ The API response took longer than expected.'
         else:
@@ -62,7 +63,7 @@ def process_number(update: Update, context: CallbackContext):
         response_text = '⌛ The API request timed out. Please try again later.'
     except requests.RequestException:
         response_text = '❌ An error occurred while making the API request. Please try again later.'
-    
+
     context.bot.send_message(chat_id=update.effective_chat.id, text=response_text)
 
 def main():
