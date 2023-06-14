@@ -2,7 +2,6 @@ import telegram
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import requests
 import re
-import time
 
 TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
 
@@ -19,27 +18,22 @@ def handle_message(update, context):
     if message.startswith("01") and len(message) == 11:
         api_url = f"https://teamxfire.com/Nidinxx/Vx.php?number={message}"
         
-        # Send the waiting animation message
-        waiting_message = 'Finding🧐'
-        animation = '|'
-        reply_message = context.bot.send_message(chat_id=update.effective_chat.id, text=waiting_message)
-        
-        # Add the waiting animation frames
-        for _ in range(10):
-            time.sleep(0.5)
-            animation += '='
-            reply_message.edit_text(f'{waiting_message} {animation} |')
+        # Send the "Finding" message
+        finding_message = 'Finding🧐'
+        context.bot.send_message(chat_id=update.effective_chat.id, text=finding_message)
         
         # Request the API and extract the desired tags
         api_response = requests.get(api_url).text
         extracted_tags = re.findall(r'"(User_IMEI|User_IMSI|User_time_last_action|User_REGION|User_DIVISON|User_DISTRICT|User_THANA|User_UNION_NAME|User_LOC_LONG|User_LOC_LAT)":"([^"]*)"', api_response)
         
         # Create a formatted reply message with emojis
-        reply_message.edit_text('🔍 API Result:')
+        reply_message = '🔍 API Result:'
         for tag, value in extracted_tags:
-            reply_message.edit_text(reply_message.text + f'\n✅ {tag}: {value}')
+            reply_message += f'\n✅ {tag}: {value}'
+        
+        context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
     else:
-        context.bot.send_message(chat_id=update.effective_chat.id, text='⚠️ERROR⚠️ || The following reasons can cause the error: \n Wrong mobile number\n Not of Banglalink/ Airtel/ Robi operators\n The number is out of service')
+        context.bot.send_message(chat_id=update.effective_chat.id, text='⚠️ Invalid phone number format. Please provide a valid number.')
 
 def main():
     """Start the bot."""
