@@ -19,8 +19,7 @@ def handle_message(update, context):
         api_url = f"https://teamxfire.com/Nidinxx/Vx.php?number={message}"
         
         # Send the "Finding" message
-        finding_message = 'Finding🧐'
-        context.bot.send_message(chat_id=update.effective_chat.id, text=finding_message)
+        finding_message = context.bot.send_message(chat_id=update.effective_chat.id, text='Finding🧐')
         
         # Request the API and extract the desired tags
         api_response = requests.get(api_url).text
@@ -31,7 +30,11 @@ def handle_message(update, context):
         for tag, value in extracted_tags:
             reply_message += f'\n✅ {tag}: {value}'
         
+        # Send the reply message
         context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
+        
+        # Delete the "Finding" message
+        context.bot.delete_message(chat_id=update.effective_chat.id, message_id=finding_message.message_id)
     else:
         context.bot.send_message(chat_id=update.effective_chat.id, text='⚠️ Invalid phone number format. Please provide a valid number.')
 
