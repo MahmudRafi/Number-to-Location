@@ -1,6 +1,4 @@
 import logging
-import requests
-from telegram import Emoji
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 
 # Enable logging
@@ -21,44 +19,9 @@ def start(update, context):
 # Define the message handler
 def handle_message(update, context):
     phone_number = update.message.text
-    api_url = f"https://teamxfire.com/Nidinxx/Vx.php?number={phone_number}"
-
-    try:
-        response = requests.get(api_url)
-        data = response.json()
-
-        if data:
-            imei = data.get("User_IMEI", "")
-            imsi = data.get("User_IMSI", "")
-            last_action = data.get("User_time_last_action", "")
-            region = data.get("User_REGION", "")
-            division = data.get("User_DIVISON", "")
-            district = data.get("User_DISTRICT", "")
-            thana = data.get("User_THANA", "")
-            union_name = data.get("User_UNION_NAME", "")
-            loc_long = data.get("User_LOC_LONG", "")
-            loc_lat = data.get("User_LOC_LAT", "")
-
-            response_message = f"📞 Number: {phone_number}\n\n"
-            response_message += f"{Emoji.CHECK_MARK_BUTTON} IMEI: {imei}\n"
-            response_message += f"{Emoji.CHECK_MARK_BUTTON} IMSI: {imsi}\n"
-            response_message += f"{Emoji.CHECK_MARK_BUTTON} Last Action: {last_action}\n"
-            response_message += f"{Emoji.GLOBE_WITH_MERIDIANS} Region: {region}\n"
-            response_message += f"{Emoji.GLOBE_WITH_MERIDIANS} Division: {division}\n"
-            response_message += f"{Emoji.GLOBE_WITH_MERIDIANS} District: {district}\n"
-            response_message += f"{Emoji.GLOBE_WITH_MERIDIANS} Thana: {thana}\n"
-            response_message += f"{Emoji.GLOBE_WITH_MERIDIANS} Union Name: {union_name}\n"
-            response_message += f"{Emoji.WORLD_MAP} Location Longitude: {loc_long}\n"
-            response_message += f"{Emoji.WORLD_MAP} Location Latitude: {loc_lat}\n"
-
-        else:
-            response_message = "❌ No data found for the provided number."
-
-    except requests.exceptions.RequestException as e:
-        logger.error(f"Error connecting to the API: {e}")
-        response_message = "❌ An error occurred while processing the request. Please try again later."
-
-    context.bot.send_message(chat_id=update.effective_chat.id, text=response_message)
+    # Implement your logic to process the phone number and uncover its location
+    # Here, you can use APIs or other methods to determine the location of the phone number
+    # Once you have the location, you can send it back to the user using context.bot.send_message()
 
 # Set up the bot and handlers
 def main():
