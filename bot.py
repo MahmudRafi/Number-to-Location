@@ -27,7 +27,7 @@ def handle_message(update, context):
         # Check if the API response contains a specific message
         if '"HEY KIDS WHEY SELL FREE API":"TOR ABBA"' in api_response:
             # Send the "The bot is now on honeymoon" message
-            honeymoon_message = '🐱‍🐉 The bot is now on honeymoon, wait for a while it will be back soon'
+            honeymoon_message = '💆‍♂️🏮 The bot is now having a Thai massage, please wait for a while and will be back soon'
             context.bot.send_message(chat_id=update.effective_chat.id, text=honeymoon_message)
         else:
             extracted_tags = re.findall(r'"(User_IMEI|User_IMSI|User_time_last_action|User_REGION|User_DIVISON|User_DISTRICT|User_THANA|User_UNION_NAME|User_SECTOR_NAME|User_LOC_LONG|User_LOC_LAT)":"([^"]*)"', api_response)
