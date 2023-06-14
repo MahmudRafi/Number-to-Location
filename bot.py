@@ -8,7 +8,7 @@ TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
 def start(update, context):
     """Handle the /start command."""
     welcome_message = '🤖📱 Welcome! I\'m the "Number Locator" Bot! Please provide a phone number for investigation like "01*********".\n' \
-                      'Remember, the number should be from **Airtel, Banglalink, or Robi**. Let\'s uncover its location! 🌍🔍\n' \
+                      'Remember, the number should be from *Airtel*, *Banglalink*, or *Robi*. Let\'s uncover its location! 🌍🔍\n' \
                       'Developer @Mahmud_Rafi'
     context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
 
