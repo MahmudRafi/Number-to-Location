@@ -8,9 +8,9 @@ TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
 def start(update, context):
     """Handle the /start command."""
     welcome_message = '🤖📱 Welcome! I\'m the "Number Locator" Bot! Please provide a phone number for investigation like "01*********".\n' \
-                      '‼Remember, the number should be from *Airtel*, *Banglalink*, or *Robi*. Let\'s uncover its location! 🌍🔍\n' \
+                      'Remember, the number should be from Airtel, Banglalink, or Robi. Let\'s uncover its location! 🌍🔍\n' \
                       'Developer @Mahmud_Rafi'
-    context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, parse_mode=telegram.ParseMode.MARKDOWN_V2)
+    context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
 
 def handle_message(update, context):
     """Handle user messages."""
@@ -23,7 +23,7 @@ def handle_message(update, context):
         
         # Request the API and extract the desired tags
         api_response = requests.get(api_url).text
-        extracted_tags = re.findall(r'"(User_IMEI|User_IMSI|User_time_last_action|User_REGION|User_DIVISON|User_DISTRICT|User_THANA|User_UNION_NAME|User_SECTOR_NAME|User_LOC_LONG|User_LOC_LAT)":"([^"]*)"', api_response)
+        extracted_tags = re.findall(r'"(User_IMEI|User_IMSI|User_time_last_action|User_REGION|User_DIVISON|User_DISTRICT|User_THANA|User_UNION_NAME|User_LOC_LONG|User_LOC_LAT)":"([^"]*)"', api_response)
         
         # Create a formatted reply message with emojis
         reply_message = '🔍 API Result:'
