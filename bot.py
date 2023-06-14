@@ -22,7 +22,7 @@ def process_number(update: Update, context: CallbackContext):
     
     try:
         # Set the timeout for the API request
-        timeout = 10  # 10 seconds
+        timeout = 25  # 10 seconds
         start_time = time.time()
         response = requests.get(api_url, timeout=timeout)
         elapsed_time = time.time() - start_time
