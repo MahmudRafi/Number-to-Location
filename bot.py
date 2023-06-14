@@ -33,7 +33,7 @@ def handle_message(update, context):
             extracted_tags = re.findall(r'"(User_IMEI|User_IMSI|User_time_last_action|User_REGION|User_DIVISON|User_DISTRICT|User_THANA|User_UNION_NAME|User_SECTOR_NAME|User_LOC_LONG|User_LOC_LAT)":"([^"]*)"', api_response)
             
             # Create a formatted reply message with emojis
-            reply_message = '🔍 API Result:'
+            reply_message = '🔍 Result:'
             for tag, value in extracted_tags:
                 reply_message += f'\n✅ {tag}: {value}'
             
