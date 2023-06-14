@@ -3,6 +3,9 @@ import requests
 from telegram.ext import Updater, CommandHandler, MessageHandler
 from telegram import Update
 
+# Set up the Telegram bot token
+token = "5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8"
+
 # Enable logging
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                     level=logging.INFO)
@@ -62,9 +65,6 @@ def handle_message(update: Update, context):
 
 # Set up the bot and handlers
 def main():
-    # Set up the Telegram bot token
-    token = "5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8"
-
     # Create the Updater and pass in the bot token
     updater = Updater(token=token, use_context=True)
 
