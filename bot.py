@@ -6,48 +6,45 @@ import re
 TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
 
 def start(update, context):
-    """Handler for the /start command."""
-    welcome_message = "👋 Welcome to the Location Finder Bot!\n\n" \
-                      "Please enter your phone number in the following format: +123456789.\n" \
-                      "For example: +15551234567"
-
-    # Escape exclamation marks in the message
-    welcome_message = welcome_message.replace('!', r'\!')
-
+    """Handle the /start command."""
+    welcome_message = '🤖📱 Welcome! I\'m the "Number Locator" Bot! Please provide a phone number for investigation like "01*********".\n' \
+                      'Remember, the number should be from *Airtel*, *Banglalink*, or *Robi*. Let\'s uncover its location! 🌍🔍\n' \
+                      'Developer @Mahmud_Rafi'
     context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message, parse_mode=telegram.ParseMode.MARKDOWN_V2)
-
 
 def handle_message(update, context):
     """Handle user messages."""
     message = update.message.text
     if message.startswith("01") and len(message) == 11:
-        api_url = f"https://teamxfire.com/Nidinxx/Vx.php?number={message}"
+        api_url = f"https://teamtasik.xyz/api/siminfo.php?key=free&phone={message}"
         
         # Send the "Finding" message
         finding_message = context.bot.send_message(chat_id=update.effective_chat.id, text='Finding🧐')
         
         # Request the API and extract the desired tags
-        api_response = requests.get(api_url).json()
+        api_response = requests.get(api_url).text
         
+        # Check if the API response contains a specific message
         if '"HEY KIDS WHEY SELL FREE API":"TOR ABBA"' in api_response:
-            # Send the "The bot is now having a Thai massage" message
-            massage_message = '💆‍♂️🏮 The bot is now having a Thai massage, please wait for a while and will be back soon'
-            context.bot.send_message(chat_id=update.effective_chat.id, text=massage_message)
+            # Send the "The bot is now on honeymoon" message
+            honeymoon_message = '💆‍♂️🏮 The bot is now having a Thai massage, please wait for a while and will be back soon'
+            context.bot.send_message(chat_id=update.effective_chat.id, text=honeymoon_message)
         else:
-            user_imei = api_response.get('User_IMEI', '')
-            user_imsi = api_response.get('User_IMSI', '')
-            user_last_action_date = api_response.get('User_date_last_action', '')
-            user_last_action_time = api_response.get('User_time_last_action', '')
-            user_sector_name = api_response.get('User_SECTOR_NAME', '')
-            user_union_name = api_response.get('User_UNION_NAME', '')
-            user_thana = api_response.get('User_THANA', '')
-            user_district = api_response.get('User_DISTRICT', '')
-            user_division = api_response.get('User_DIVISON', '')
-            user_loc_long = api_response.get('User_LOC_LONG', '')
-            user_loc_lat = api_response.get('User_LOC_LAT', '')
+            # Extract the desired tags
+            user_imei = re.findall(r'"User_IMEI":"([^"]*)"', api_response)[0]
+            user_imsi = re.findall(r'"User_IMSI":"([^"]*)"', api_response)[0]
+            user_last_action_date = re.findall(r'"User_time_last_action":"([^"]*)"', api_response)[0]
+            user_last_action_time = re.findall(r'"User_TIME_LAST_ACTION":"([^"]*)"', api_response)[0]
+            user_sector_name = re.findall(r'"User_SECTOR_NAME":"([^"]*)"', api_response)[0]
+            user_union_name = re.findall(r'"User_UNION_NAME":"([^"]*)"', api_response)[0]
+            user_thana = re.findall(r'"User_THANA":"([^"]*)"', api_response)[0]
+            user_district = re.findall(r'"User_DISTRICT":"([^"]*)"', api_response)[0]
+            user_division = re.findall(r'"User_DIVISON":"([^"]*)"', api_response)[0]
+            user_loc_long = re.findall(r'"User_LOC_LONG":"([^"]*)"', api_response)[0]
+            user_loc_lat = re.findall(r'"User_LOC_LAT":"([^"]*)"', api_response)[0]
             
             # Create a formatted reply message with emojis
-            reply_message = '🔍 Result:\n'
+            reply_message = '🔍 Result:'
             reply_message += f'📱 User_IMEI: {user_imei}\n'
             reply_message += f'🆔 User_IMSI: {user_imsi}\n'
             reply_message += f'📅 User_last_action_date: {user_last_action_date}\n'
@@ -59,7 +56,6 @@ def handle_message(update, context):
             reply_message += f'🌍 User_division: {user_division}\n'
             reply_message += f'🗺️ User_loc_long: {user_loc_long}\n'
             reply_message += f'🗺️ User_loc_lat: {user_loc_lat}\n'
-
             
             # Send the reply message
             context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
