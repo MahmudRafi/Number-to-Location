@@ -15,13 +15,24 @@ def handle_message(update, context):
     phone_number = update.message.text.strip()
     if phone_number.startswith('01') and len(phone_number) == 11:
         api_url = f'https://teamtasik.xyz/api/siminfo.php?key=free&phone={phone_number}'
+
+        # Send the waiting message
+        waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text="Finding 🧐")
+
+        # Fetch the API response
         response = requests.get(api_url)
         api_result = response.json()
         formatted_result = format_api_result(api_result)
+
+        # Delete the waiting message
+        context.bot.delete_message(chat_id=update.effective_chat.id, message_id=waiting_message.message_id)
+
+        # Send the formatted result
         context.bot.send_message(chat_id=update.effective_chat.id, text=formatted_result)
     else:
         error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits.'
         context.bot.send_message(chat_id=update.effective_chat.id, text=error_message)
+
 
 def format_api_result(api_result):
     if 'User_IMEI' in api_result:
