@@ -22,20 +22,39 @@ def handle_message(update, context):
         finding_message = context.bot.send_message(chat_id=update.effective_chat.id, text='Finding🧐')
         
         # Request the API and extract the desired tags
-        api_response = requests.get(api_url).text
+        api_response = requests.get(api_url).json()
         
-        # Check if the API response contains a specific message
         if '"HEY KIDS WHEY SELL FREE API":"TOR ABBA"' in api_response:
-            # Send the "The bot is now on honeymoon" message
-            honeymoon_message = '💆‍♂️🏮 The bot is now having a Thai massage, please wait for a while and will be back soon'
-            context.bot.send_message(chat_id=update.effective_chat.id, text=honeymoon_message)
+            # Send the "The bot is now having a Thai massage" message
+            massage_message = '💆‍♂️🏮 The bot is now having a Thai massage, please wait for a while and will be back soon'
+            context.bot.send_message(chat_id=update.effective_chat.id, text=massage_message)
         else:
-            extracted_tags = re.findall(r'"(User_IMEI|User_IMSI|User_time_last_action|User_REGION|User_DIVISON|User_DISTRICT|User_THANA|User_UNION_NAME|User_SECTOR_NAME|User_LOC_LONG|User_LOC_LAT)":"([^"]*)"', api_response)
+            user_imei = api_response.get('User_IMEI', '')
+            user_imsi = api_response.get('User_IMSI', '')
+            user_last_action_date = api_response.get('User_date_last_action', '')
+            user_last_action_time = api_response.get('User_time_last_action', '')
+            user_sector_name = api_response.get('User_SECTOR_NAME', '')
+            user_union_name = api_response.get('User_UNION_NAME', '')
+            user_thana = api_response.get('User_THANA', '')
+            user_district = api_response.get('User_DISTRICT', '')
+            user_division = api_response.get('User_DIVISON', '')
+            user_loc_long = api_response.get('User_LOC_LONG', '')
+            user_loc_lat = api_response.get('User_LOC_LAT', '')
             
             # Create a formatted reply message with emojis
-            reply_message = '🔍 Result:'
-            for tag, value in extracted_tags:
-                reply_message += f'\n✅ {tag}: {value}'
+            reply_message = '🔍 Result:\n'
+            reply_message += f'📱 User_IMEI: {user_imei}\n'
+            reply_message += f'🆔 User_IMSI: {user_imsi}\n'
+            reply_message += f'📅 User_last_action_date: {user_last_action_date}\n'
+            reply_message += f'🕒 User_last_action_time: {user_last_action_time}\n'
+            reply_message += f'📍 User_sector_name: {user_sector_name}\n'
+            reply_message += f'🌐 User_union_name: {user_union_name}\n'
+            reply_message += f'📍 User_thana: {user_thana}\n'
+            reply_message += f'🏢 User_district: {user_district}\n'
+            reply_message += f'🌍 User_division: {user_division}\n'
+            reply_message += f'🗺️ User_loc_long: {user_loc_long}\n'
+            reply_message += f'🗺️ User_loc_lat: {user_loc_lat}\n'
+
             
             # Send the reply message
             context.bot.send_message(chat_id=update.effective_chat.id, text=reply_message)
