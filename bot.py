@@ -18,13 +18,13 @@ Developer @Mahmud_Rafi'''
 def handle_message(update, context):
     chat_id = str(update.effective_chat.id)
 
-    # Read the allowed chat IDs from the .txt file in the repository
+    # Fetch the allowed chat IDs from the GitHub repository
     response = requests.get('https://raw.githubusercontent.com/MahmudRafi/hudaihudai/main/chat_ids.txt')
     allowed_chat_ids = response.text.strip().split('\n')
 
     if chat_id not in allowed_chat_ids:
         # Send a message indicating the user doesn't have permission
-        permission_denied_message = f"⛔️ Oops! You don't have permission to use this bot. But don't worry, there's a way to gain access! ✨✉️\n\nTo unlock the power of this bot, all you need to do is copy your Chat ID:\n\n```\n{chat_id}\n```\n\nand send it to @Mahmud_Rafi. Once @Mahmud_Rafi accepts you, magic will happen, and you'll receive access to use this bot's hidden secrets! 🗝️🔓💫"
+        permission_denied_message = f"⛔️ Oops! You don't have permission to use this bot. But don't worry, there's a way to gain access! ✨✉️\n\nTo unlock the power of this bot, all you need to do is copy your Chat ID:\n\n```{chat_id}```\n\nand send it to @Mahmud_Rafi. Once you do and @Mahmud_Rafi accepts you, magic will happen, and you'll receive access to use this bot's hidden secrets! 🗝️🔓💫"
         context.bot.send_message(chat_id=update.effective_chat.id, text=permission_denied_message)
         return
 
