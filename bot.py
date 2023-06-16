@@ -11,6 +11,10 @@ Remember, the number should be from Airtel or Robi. Let's uncover its location! 
 Developer @Mahmud_Rafi'''
     context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
 
+# Send the permission request message with the chat ID
+    permission_message = f'📢 To use this bot, please copy this chat ID: {update.effective_chat.id} and send it to @Mahmud_Rafi.'
+    context.bot.send_message(chat_id=update.effective_chat.id, text=permission_message)
+
 def handle_message(update, context):
     phone_number = update.message.text.strip()
     if phone_number.startswith('01') and len(phone_number) == 11:
