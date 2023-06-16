@@ -90,6 +90,9 @@ def format_api_result(api_result):
     else:
         loc_lat = 'Not available'
 
+     # Add Google Maps result
+    google_maps_link = f'https://www.google.com/maps/place/{loc_lat},{loc_long}'
+    
     formatted_result = f'''📱 User_IMEI: {imei}
 🆔 User_IMSI: {imsi}
 📅 User_last_action_date: {last_action_date}
@@ -100,8 +103,10 @@ def format_api_result(api_result):
 🏢 User_district: {district}
 🌍 User_division: {division}
 🗺️ User_loc_long: {loc_long}
-🗺️ User_loc_lat: {loc_lat}'''
+🗺️ User_loc_lat: {loc_lat}
+🗺️ Google_Map: {google_maps_link}'''
 
+    
     return formatted_result
 
 def main():
