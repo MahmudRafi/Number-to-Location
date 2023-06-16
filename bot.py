@@ -7,7 +7,7 @@ TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
 
 def start(update, context):
     welcome_message = '''🤖📱 Welcome! I'm the "Number Locator" Bot! Please provide a phone number for investigation like "01*********".
-Remember, the number should be from Airtel, Banglalink, or Robi. Let's uncover its location! 🌍🔍
+Remember, the number should be from Airtel or Robi. Let's uncover its location! 🌍🔍
 Developer @Mahmud_Rafi'''
     context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
 
@@ -30,7 +30,7 @@ def handle_message(update, context):
         # Send the formatted result
         context.bot.send_message(chat_id=update.effective_chat.id, text=formatted_result)
     else:
-        error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits.'
+        error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits. Ex. 01000000000'
         context.bot.send_message(chat_id=update.effective_chat.id, text=error_message)
 
 
