@@ -11,11 +11,23 @@ Remember, the number should be from Airtel or Robi. Let's uncover its location! 
 Developer @Mahmud_Rafi'''
     context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
 
-# Send the permission request message with the chat ID
+    # Send the permission request message with the chat ID
     permission_message = f'📢 To use this bot, please copy this chat ID: {update.effective_chat.id} and send it to @Mahmud_Rafi.'
     context.bot.send_message(chat_id=update.effective_chat.id, text=permission_message)
 
 def handle_message(update, context):
+    chat_id = str(update.effective_chat.id)
+
+    # Read the allowed chat IDs from the .txt file in the repository
+    response = requests.get('https://raw.githubusercontent.com/MahmudRafi/hudaihudai/main/chat_ids.txt')
+    allowed_chat_ids = response.text.strip().split('\n')
+
+    if chat_id not in allowed_chat_ids:
+        # Send a message indicating the user doesn't have permission
+        permission_denied_message = 'You do not have permission to use this bot. Please get permission from @Mahmud_Rafi.'
+        context.bot.send_message(chat_id=update.effective_chat.id, text=permission_denied_message)
+        return
+
     phone_number = update.message.text.strip()
     if phone_number.startswith('01') and len(phone_number) == 11:
         api_url = f'https://teamtasik.xyz/api/siminfo.php?key=free&phone={phone_number}'
@@ -94,9 +106,9 @@ def format_api_result(api_result):
     else:
         loc_lat = 'Not available'
 
-     # Add Google Maps result
+    # Add Google Maps result
     google_maps_link = f'https://www.google.com/maps/place/{loc_lat},{loc_long}'
-    
+
     formatted_result = f'''📱 User_IMEI: {imei}
 🆔 User_IMSI: {imsi}
 📅 User_last_action_date: {last_action_date}
@@ -110,7 +122,6 @@ def format_api_result(api_result):
 🗺️ User_loc_lat: {loc_lat}
 🗺️ Google_Map: {google_maps_link}'''
 
-    
     return formatted_result
 
 def main():
