@@ -43,20 +43,22 @@ def handle_message(update, context):
                 seconds_left = int(FREE_REQUEST_DURATION - (current_time - user.last_request_time))
                 hours_left = seconds_left // 3600
                 minutes_left = (seconds_left % 3600) // 60
+                seconds_left = seconds_left % 60
 
                 # Send a message with countdown animation
-                countdown_animation = f"⏳ Please wait for {hours_left} hours and {minutes_left} minutes before making another request."
+                countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request."
 
                 # Send the waiting message
                 waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_animation)
 
                 # Animate the countdown message
-                for minutes in range(int(hours_left * 60 + minutes_left), 0, -1):
-                    minutes_left = minutes % 60
-                    hours_left = minutes // 60
-                    countdown_animation = f"⏳ Please wait for {hours_left} hours and {minutes_left} minutes before making another request."
+                for seconds in range(int(hours_left * 3600 + minutes_left * 60 + seconds_left), 0, -1):
+                    seconds_left = seconds % 60
+                    minutes_left = (seconds // 60) % 60
+                    hours_left = seconds // 3600
+                    countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request."
                     context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_animation)
-                    time.sleep(60)
+                    time.sleep(1)
 
                 # Delete the countdown animation message
                 context.bot.delete_message(chat_id=update.effective_chat.id, message_id=waiting_message.message_id)
