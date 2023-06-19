@@ -71,8 +71,8 @@ def handle_message(update, context):
         # Send the waiting message
         waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text="Finding 🧐")
 
-        # Fetch the API response
-        response = requests.get(api_url)
+        # Fetch the API response without SSL verification
+        response = requests.get(api_url, verify=False)
         api_result = response.json()
         formatted_result = format_api_result(api_result, user.is_premium)
 
