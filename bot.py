@@ -3,10 +3,6 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import requests
 import json
 import time
-import datetime
-from pytz import timezone
-from barcode import Code128
-from barcode.writer import ImageWriter
 
 TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
 FREE_REQUEST_DURATION = 12 * 60 * 60  # 12 hours in seconds
@@ -44,19 +40,36 @@ def handle_message(update, context):
 
             if not user.is_premium and user.request_count >= 2 and current_time - user.last_request_time < FREE_REQUEST_DURATION:
                 # Calculate the time left until the user can make another request
-                seconds_left = FREE_REQUEST_DURATION - (current_time - user.last_request_time)
+                seconds_left = int(FREE_REQUEST_DURATION - (current_time - user.last_request_time))
                 hours_left = seconds_left // 3600
                 minutes_left = (seconds_left % 3600) // 60
                 seconds_left = seconds_left % 60
 
                 # Send a message indicating the user needs to wait before making another request
                 countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left:02d} before making another request."
-                context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_message)
-                return
+                waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_message)
 
-            # Update the user's last request time and request count
-            user.last_request_time = current_time
-            user.request_count += 1
+                # Update the message at regular intervals
+                while seconds_left > 0:
+                    seconds_left -= 1
+                    hours_left = seconds_left // 3600
+                    minutes_left = (seconds_left % 3600) // 60
+                    seconds_left_display = seconds_left % 60
+
+                    countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left_display:02d} before making another request."
+                    context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_message)
+                    time.sleep(1)
+
+                # Delete the countdown message
+                context.bot.delete_message(chat_id=update.effective_chat.id, message_id=waiting_message.message_id)
+
+                # Update the user's last request time and request count
+                user.last_request_time = current_time
+                user.request_count += 1
+            else:
+                # Update the user's last request time and request count
+                user.last_request_time = current_time
+                user.request_count += 1
         else:
             is_premium = chat_id in premium_chat_ids
             # Create a new user entry
@@ -79,16 +92,10 @@ def handle_message(update, context):
         # Send the formatted result
         context.bot.send_message(chat_id=update.effective_chat.id, text=formatted_result)
 
+        # Send the premium upgrade message to free users
         if not user.is_premium:
-            # Generate the countdown clock image
-            countdown_image = generate_countdown_image(FREE_REQUEST_DURATION)
-
-            # Send the countdown image
-            context.bot.send_photo(chat_id=update.effective_chat.id, photo=countdown_image)
-
-            # Send the premium upgrade message
-            premium_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to become a premium user."
-            context.bot.send_message(chat_id=update.effective_chat.id, text=premium_message)
+            premium_upgrade_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium."
+            context.bot.send_message(chat_id=update.effective_chat.id, text=premium_upgrade_message)
     else:
         error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits. Ex. 01000000000'
         context.bot.send_message(chat_id=update.effective_chat.id, text=error_message)
@@ -140,25 +147,22 @@ def format_api_result(api_result, is_premium):
 def get_google_maps_link(lat, lon):
     return f'https://google.com/maps/search/?api=1&query={lat},{lon}'
 
-def generate_countdown_image(duration):
-    # Calculate the end time
-    end_time = time.time() + duration
-
-    # Generate the countdown clock barcode image
-    barcode = Code128(str(end_time), writer=ImageWriter())
-    filename = barcode.save("countdown")
-    return open(filename, 'rb')
-
 def main():
     global premium_chat_ids
     premium_chat_ids = fetch_premium_chat_ids()
 
     updater = Updater(TOKEN, use_context=True)
-    dp = updater.dispatcher
+    dispatcher = updater.dispatcher
 
-    dp.add_handler(CommandHandler("start", start))
-    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
+    # Define handlers
+    start_handler = CommandHandler('start', start)
+    message_handler = MessageHandler(Filters.text & (~Filters.command), handle_message)
 
+    # Add handlers to dispatcher
+    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(message_handler)
+
+    # Start the bot
     updater.start_polling()
     updater.idle()
 
