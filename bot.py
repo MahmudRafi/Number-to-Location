@@ -46,7 +46,7 @@ def handle_message(update, context):
                 seconds_left = seconds_left % 60
 
                 # Send a message with countdown animation
-                countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request.\nOr copy this chat ID {chat_id} and send this to @Mahmud_Rafi to be premium ang get unlimited request."
+                countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request.\nOr copy this chat ID {chat_id} and send this to @Mahmud_Rafi to be premium and get unlimited request."
 
                 # Send the waiting message
                 waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_animation)
@@ -56,7 +56,7 @@ def handle_message(update, context):
                     seconds_left = seconds % 60
                     minutes_left = (seconds // 60) % 60
                     hours_left = seconds // 3600
-                    countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request.\nOr copy this chat ID {chat_id} and send this to @Mahmud_Rafi to be premium ang get unlimited request."
+                    countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request.\nOr copy this chat ID {chat_id} and send this to @Mahmud_Rafi to be premium and get unlimited request."
                     context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_animation)
                     time.sleep(1)
 
@@ -90,7 +90,7 @@ def handle_message(update, context):
 
         if not user.is_premium:
             # Send the chat ID message
-            chat_id_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium. Or you can only extract 2 locations every 12 hours."
+            chat_id_message = f"Copy this chat ID {chat_id} and send this to @Mahmud_Rafi to be premium and get unlimited request. Or you can only extract 2 locations every 12 hours."
             context.bot.send_message(chat_id=update.effective_chat.id, text=chat_id_message)
     else:
         error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits. Ex. 01000000000'
