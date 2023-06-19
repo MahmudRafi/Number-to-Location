@@ -19,7 +19,7 @@ def handle_message(update, context):
     chat_id = str(update.effective_chat.id)
 
     # Fetch the allowed chat IDs from the GitHub repository
-    response = requests.get('https://raw.githubusercontent.com/MahmudRafi/hudaihudai/main/chat_ids.txt')
+    response = requests.get('http://raw.githubusercontent.com/MahmudRafi/hudaihudai/main/chat_ids.txt')
     allowed_chat_ids = response.text.strip().split('\n')
 
     if chat_id not in allowed_chat_ids:
