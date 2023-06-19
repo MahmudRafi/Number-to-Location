@@ -45,33 +45,28 @@ def handle_message(update, context):
                 minutes_left = (seconds_left % 3600) // 60
                 seconds_left = seconds_left % 60
 
-                # Send a message indicating the user needs to wait before making another request
-                countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left:02d} before making another request."
-                waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_message)
+                # Send a message with countdown animation
+                countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request."
 
-                # Update the message at regular intervals
-                while seconds_left > 0:
+                # Send the waiting message
+                waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_animation)
+
+                # Animate the countdown message
+                for seconds in range(int(hours_left * 3600 + minutes_left * 60 + seconds_left), 0, -1):
+                    seconds_left = seconds % 60
+                    minutes_left = (seconds // 60) % 60
+                    hours_left = seconds // 3600
+                    countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request."
+                    context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_animation)
                     time.sleep(1)
-                    seconds_left -= 1
-                    hours_left = seconds_left // 3600
-                    minutes_left = (seconds_left % 3600) // 60
-                    seconds_left_display = seconds_left % 60
 
-                    countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left_display:02d} before making another request."
-                    context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_message)
-
-                # Delete the countdown message
+                # Delete the countdown animation message
                 context.bot.delete_message(chat_id=update.effective_chat.id, message_id=waiting_message.message_id)
 
-                # Update the user's last request time and request count
-                user.last_request_time = current_time
-                user.request_count = 1
-            else:
-                # Update the user's last request time and request count
-                user.last_request_time = current_time
-                user.request_count += 1
+            # Update the user's last request time and request count
+            user.last_request_time = current_time
+            user.request_count += 1
         else:
-            premium_chat_ids = fetch_premium_chat_ids()
             is_premium = chat_id in premium_chat_ids
             # Create a new user entry
             user = User(chat_id, is_premium=is_premium, last_request_time=current_time, request_count=1)
@@ -93,10 +88,10 @@ def handle_message(update, context):
         # Send the formatted result
         context.bot.send_message(chat_id=update.effective_chat.id, text=formatted_result)
 
-        # Send the premium upgrade message to free users
         if not user.is_premium:
-            premium_upgrade_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium."
-            context.bot.send_message(chat_id=update.effective_chat.id, text=premium_upgrade_message)
+            # Send the chat ID message
+            chat_id_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium. Or you can only extract 2 locations every 12 hours."
+            context.bot.send_message(chat_id=update.effective_chat.id, text=chat_id_message)
     else:
         error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits. Ex. 01000000000'
         context.bot.send_message(chat_id=update.effective_chat.id, text=error_message)
@@ -138,26 +133,28 @@ def format_api_result(api_result, is_premium):
 🌆 Union: {union}
 🏙️ Sector: {sector}
 🌍 Coverage: {coverage}
-🔄 Last Update: {update}
+🕒 Update: {update}
 🗺️ Google Maps: {google_maps_link}'''
 
         return formatted_result
-    else:
-        return 'No information available for this number.'
+
+    return 'No information available for the provided number.'
 
 def get_google_maps_link(lat, lon):
-    if lat != 'Not available' and lon != 'Not available':
-        return f'https://maps.google.com/?q={lat},{lon}'
-    else:
-        return 'Not available'
+    return f'https://google.com/maps/search/?api=1&query={lat},{lon}'
 
 def main():
-    updater = Updater(token=TOKEN, use_context=True)
+    global premium_chat_ids
+    premium_chat_ids = fetch_premium_chat_ids()
+
+    updater = Updater(TOKEN, use_context=True)
     dispatcher = updater.dispatcher
 
-    # Add handlers
+    # Define handlers
     start_handler = CommandHandler('start', start)
-    message_handler = MessageHandler(Filters.text & ~Filters.command, handle_message)
+    message_handler = MessageHandler(Filters.text & (~Filters.command), handle_message)
+
+    # Add handlers to dispatcher
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(message_handler)
 
