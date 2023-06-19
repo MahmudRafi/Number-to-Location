@@ -24,20 +24,20 @@ def handle_message(update, context):
 
     if chat_id not in allowed_chat_ids:
         # Send a message indicating the user doesn't have permission
-        permission_denied_message = f"💆🏻 The bot is having a Thai massage, please wait for a while and will be back soon"
+        permission_denied_message = f"⛔️ Oops! You don't have permission to use this bot. But don't worry, there's a way to gain access! ✨✉️\n\nTo unlock the power of this bot, all you need to do is copy your Chat ID:\n\n{chat_id}\n\nand send it to @Mahmud_Rafi. Once @Mahmud_Rafi accepts you, magic will happen, and you'll receive access to use this bot's hidden secrets! 🗝️🔓💫"
         context.bot.send_message(chat_id=update.effective_chat.id, text=permission_denied_message)
         return
 
     phone_number = update.message.text.strip()
     if phone_number.startswith('01') and len(phone_number) == 11:
-        api_url = f'https://teamtasik.xyz/api/siminfo.php?key=free&phone={phone_number}'
+        api_url = f'https://api.cybersh.xyz/siminfo.php?key=ST&number={phone_number}'
 
         # Send the waiting message
         waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text="Finding 🧐")
 
         # Fetch the API response
         response = requests.get(api_url)
-        api_result = response.json()
+        api_result = response.json()["siminfo"]
         formatted_result = format_api_result(api_result)
 
         # Delete the waiting message
@@ -51,76 +51,35 @@ def handle_message(update, context):
 
 
 def format_api_result(api_result):
-    if 'User_IMEI' in api_result:
-        imei = api_result['User_IMEI']
-    else:
-        imei = 'Not available'
+    number = api_result["number"]
+    imei = api_result["imei"]
+    imsi = api_result["imsi"]
+    division = api_result["division"]
+    district = api_result["district"]
+    region = api_result["region"]
+    thana = api_result["thana"]
+    union = api_result["union"]
+    sector = api_result["sector"]
+    lat = api_result["lat"]
+    lon = api_result["lon"]
+    coverage = api_result["coverage"]
+    update = api_result["update"]
+    loc = api_result["loc"]
 
-    if 'User_IMSI' in api_result:
-        imsi = api_result['User_IMSI']
-    else:
-        imsi = 'Not available'
-
-    if 'User_date_last_action' in api_result:
-        last_action_date = api_result['User_date_last_action']
-    else:
-        last_action_date = 'Not available'
-
-    if 'User_time_last_action' in api_result:
-        last_action_time = api_result['User_time_last_action']
-    else:
-        last_action_time = 'Not available'
-
-    if 'User_SECTOR_NAME' in api_result:
-        sector_name = api_result['User_SECTOR_NAME']
-    else:
-        sector_name = 'Not available'
-
-    if 'User_UNION_NAME' in api_result:
-        union_name = api_result['User_UNION_NAME']
-    else:
-        union_name = 'Not available'
-
-    if 'User_THANA' in api_result:
-        thana = api_result['User_THANA']
-    else:
-        thana = 'Not available'
-
-    if 'User_DISTRICT' in api_result:
-        district = api_result['User_DISTRICT']
-    else:
-        district = 'Not available'
-
-    if 'User_DIVISON' in api_result:
-        division = api_result['User_DIVISON']
-    else:
-        division = 'Not available'
-
-    if 'User_LOC_LONG' in api_result:
-        loc_long = api_result['User_LOC_LONG']
-    else:
-        loc_long = 'Not available'
-
-    if 'User_LOC_LAT' in api_result:
-        loc_lat = api_result['User_LOC_LAT']
-    else:
-        loc_lat = 'Not available'
-
-    # Add Google Maps result
-    google_maps_link = f'https://www.google.com/maps/place/{loc_lat},{loc_long}'
-
-    formatted_result = f'''📱 User_IMEI: {imei}
-🆔 User_IMSI: {imsi}
-📅 User_last_action_date: {last_action_date}
-🕒 User_last_action_time: {last_action_time}
-📍 User_sector_name: {sector_name}
-🌐 User_union_name: {union_name}
-📍 User_thana: {thana}
-🏢 User_district: {district}
-🌍 User_division: {division}
-🗺️ User_loc_long: {loc_long}
-🗺️ User_loc_lat: {loc_lat}
-🗺️ Google_Map: {google_maps_link}'''
+    formatted_result = f'''📱 Number: {number}
+🆔 IMEI: {imei}
+📇 IMSI: {imsi}
+🌍 Division: {division}
+🏢 District: {district}
+🗺️ Region: {region}
+📍 Thana: {thana}
+🌐 Union: {union}
+🔍 Sector: {sector}
+🗺️ Latitude: {lat}
+🗺️ Longitude: {lon}
+📡 Coverage: {coverage}
+⏰ Last Update: {update}
+🌍 Location: {loc}'''
 
     return formatted_result
 
