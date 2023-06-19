@@ -3,6 +3,8 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import requests
 import json
 import time
+import threading
+from datetime import datetime, timedelta
 
 TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
 FREE_REQUEST_DURATION = 12 * 60 * 60  # 12 hours in seconds
@@ -132,23 +134,30 @@ def format_api_result(api_result, is_premium):
 def get_google_maps_link(lat, lon):
     return f'https://google.com/maps/search/?api=1&query={lat},{lon}'
 
+def countdown_animation(update, context, end_time):
+    while datetime.now() < end_time:
+        time_left = end_time - datetime.now()
+        hours_left = int(time_left.total_seconds() // 3600)
+        minutes_left = int((time_left.total_seconds() % 3600) // 60)
+        seconds_left = int(time_left.total_seconds() % 60)
+
+        countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left:02d} before making another request."
+
+        context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=update.message.message_id, text=countdown_message)
+        time.sleep(1)
+
 def main():
     global premium_chat_ids
     premium_chat_ids = fetch_premium_chat_ids()
 
     updater = Updater(TOKEN, use_context=True)
-    dispatcher = updater.dispatcher
+    dp = updater.dispatcher
 
-    # Define handlers
-    start_handler = CommandHandler('start', start)
-    message_handler = MessageHandler(Filters.text & (~Filters.command), handle_message)
+    dp.add_handler(CommandHandler("start", start))
+    dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 
-    # Add handlers to dispatcher
-    dispatcher.add_handler(start_handler)
-    dispatcher.add_handler(message_handler)
-
-    # Start the bot
     updater.start_polling()
+    print("Bot started")
     updater.idle()
 
 if __name__ == '__main__':
