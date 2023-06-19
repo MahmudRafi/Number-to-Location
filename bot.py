@@ -40,25 +40,26 @@ def handle_message(update, context):
 
             if not user.is_premium and user.request_count >= 2 and current_time - user.last_request_time < FREE_REQUEST_DURATION:
                 # Calculate the time left until the user can make another request
-                seconds_left = int(FREE_REQUEST_DURATION - (current_time - user.last_request_time))
-                hours_left = seconds_left // 3600
-                minutes_left = (seconds_left % 3600) // 60
-                seconds_left = seconds_left % 200
+time_left = FREE_REQUEST_DURATION - (current_time - user.last_request_time)
+hours_left = time_left // 3600
+minutes_left = (time_left % 3600) // 60
+seconds_left = time_left % 60
 
-                # Send a message indicating the user needs to wait before making another request
-                countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left:02d} before making another request."
-                waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_message)
+# Send a message indicating the user needs to wait before making another request
+countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left:02d} before making another request."
+waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_message)
 
-                # Update the message at regular intervals
-                while seconds_left > 0:
-                    seconds_left -= 1
-                    hours_left = seconds_left // 3600
-                    minutes_left = (seconds_left % 3600) // 60
-                    seconds_left_display = seconds_left % 200
+# Update the message at regular intervals
+while time_left > 0:
+    time_left -= 1
+    hours_left = time_left // 3600
+    minutes_left = (time_left % 3600) // 60
+    seconds_left = time_left % 60
 
-                    countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left_display:02d} before making another request."
-                    context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_message)
-                    time.sleep(1)
+    countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left:02d} before making another request."
+    context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_message)
+    time.sleep(1)
+
 
                 # Delete the countdown message
                 context.bot.delete_message(chat_id=update.effective_chat.id, message_id=waiting_message.message_id)
