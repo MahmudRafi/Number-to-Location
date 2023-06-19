@@ -51,6 +51,7 @@ def handle_message(update, context):
 
                 # Update the message at regular intervals
                 while seconds_left > 0:
+                    time.sleep(1)
                     seconds_left -= 1
                     hours_left = seconds_left // 3600
                     minutes_left = (seconds_left % 3600) // 60
@@ -58,7 +59,6 @@ def handle_message(update, context):
 
                     countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left_display:02d} before making another request."
                     context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_message)
-                    time.sleep(1)
 
                 # Delete the countdown message
                 context.bot.delete_message(chat_id=update.effective_chat.id, message_id=waiting_message.message_id)
@@ -71,6 +71,7 @@ def handle_message(update, context):
                 user.last_request_time = current_time
                 user.request_count += 1
         else:
+            premium_chat_ids = fetch_premium_chat_ids()
             is_premium = chat_id in premium_chat_ids
             # Create a new user entry
             user = User(chat_id, is_premium=is_premium, last_request_time=current_time, request_count=1)
@@ -135,36 +136,29 @@ def format_api_result(api_result, is_premium):
 🌐 Region: {region}
 📍 Thana: {thana}
 🌆 Union: {union}
-🏙️ Sector: {sector}
-🌍 Coverage: {coverage}
-🕒 Update: {update}
-🗺️ Google Maps: {google_maps_link}'''
+🏢 Sector: {sector}
+🌐 Coverage: {coverage}
+🗺️ Google Maps: {google_maps_link}
+🔄 Last Update: {update}'''
 
         return formatted_result
-
-    return 'No information available for the provided number.'
+    else:
+        return 'No information available for this number. Please try again later.'
 
 def get_google_maps_link(lat, lon):
-    return f'https://google.com/maps/search/?api=1&query={lat},{lon}'
+    if lat != 'Not available' and lon != 'Not available':
+        return f'https://www.google.com/maps/search/?api=1&query={lat},{lon}'
+    else:
+        return 'Not available'
 
 def main():
-    global premium_chat_ids
-    premium_chat_ids = fetch_premium_chat_ids()
-
-    updater = Updater(TOKEN, use_context=True)
+    updater = Updater(token=TOKEN, use_context=True)
     dispatcher = updater.dispatcher
-
-    # Define handlers
     start_handler = CommandHandler('start', start)
-    message_handler = MessageHandler(Filters.text & (~Filters.command), handle_message)
-
-    # Add handlers to dispatcher
+    message_handler = MessageHandler(Filters.text & ~Filters.command, handle_message)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(message_handler)
-
-    # Start the bot
     updater.start_polling()
-    updater.idle()
 
 if __name__ == '__main__':
     main()
