@@ -3,10 +3,12 @@ from telegram.ext import Updater, CommandHandler, MessageHandler, Filters
 import requests
 import json
 import time
-import threading
-from datetime import datetime, timedelta
+import datetime
+from pytz import timezone
+from barcode import Code128
+from barcode.writer import ImageWriter
 
-TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
+TOKEN = 'YOUR_TELEGRAM_TOKEN'
 FREE_REQUEST_DURATION = 12 * 60 * 60  # 12 hours in seconds
 PREMIUM_CHAT_IDS_URL = 'https://raw.githubusercontent.com/MahmudRafi/hudaihudai/main/chat_ids.txt'
 
@@ -43,14 +45,12 @@ def handle_message(update, context):
             if not user.is_premium and user.request_count >= 2 and current_time - user.last_request_time < FREE_REQUEST_DURATION:
                 # Calculate the time left until the user can make another request
                 seconds_left = FREE_REQUEST_DURATION - (current_time - user.last_request_time)
-                hours_left = int(seconds_left // 3600)
-                minutes_left = int((seconds_left % 3600) // 60)
-                seconds_left = int(seconds_left % 60)
+                hours_left = seconds_left // 3600
+                minutes_left = (seconds_left % 3600) // 60
+                seconds_left = seconds_left % 60
 
-                # Format the countdown message
+                # Send a message indicating the user needs to wait before making another request
                 countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left:02d} before making another request."
-
-                # Send the countdown message
                 context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_message)
                 return
 
@@ -79,10 +79,16 @@ def handle_message(update, context):
         # Send the formatted result
         context.bot.send_message(chat_id=update.effective_chat.id, text=formatted_result)
 
-        # Send the premium upgrade message to free users
         if not user.is_premium:
-            premium_upgrade_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium."
-            context.bot.send_message(chat_id=update.effective_chat.id, text=premium_upgrade_message)
+            # Generate the countdown clock image
+            countdown_image = generate_countdown_image(FREE_REQUEST_DURATION)
+
+            # Send the countdown image
+            context.bot.send_photo(chat_id=update.effective_chat.id, photo=countdown_image)
+
+            # Send the premium upgrade message
+            premium_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to become a premium user."
+            context.bot.send_message(chat_id=update.effective_chat.id, text=premium_message)
     else:
         error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits. Ex. 01000000000'
         context.bot.send_message(chat_id=update.effective_chat.id, text=error_message)
@@ -134,17 +140,14 @@ def format_api_result(api_result, is_premium):
 def get_google_maps_link(lat, lon):
     return f'https://google.com/maps/search/?api=1&query={lat},{lon}'
 
-def countdown_animation(update, context, end_time):
-    while datetime.now() < end_time:
-        time_left = end_time - datetime.now()
-        hours_left = int(time_left.total_seconds() // 3600)
-        minutes_left = int((time_left.total_seconds() % 3600) // 60)
-        seconds_left = int(time_left.total_seconds() % 60)
+def generate_countdown_image(duration):
+    # Calculate the end time
+    end_time = time.time() + duration
 
-        countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left:02d} before making another request."
-
-        context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=update.message.message_id, text=countdown_message)
-        time.sleep(1)
+    # Generate the countdown clock barcode image
+    barcode = Code128(str(end_time), writer=ImageWriter())
+    filename = barcode.save("countdown")
+    return open(filename, 'rb')
 
 def main():
     global premium_chat_ids
@@ -157,7 +160,6 @@ def main():
     dp.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_message))
 
     updater.start_polling()
-    print("Bot started")
     updater.idle()
 
 if __name__ == '__main__':
