@@ -88,7 +88,7 @@ def handle_message(update, context):
 
         if not user.is_premium:
             # Send the chat ID message
-            chat_id_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium."
+            chat_id_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium. Or you can only extract 2 locations every 12 hours."
             context.bot.send_message(chat_id=update.effective_chat.id, text=chat_id_message)
     else:
         error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits. Ex. 01000000000'
