@@ -8,7 +8,7 @@ from pytz import timezone
 from barcode import Code128
 from barcode.writer import ImageWriter
 
-TOKEN = 'YOUR_TELEGRAM_TOKEN'
+TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
 FREE_REQUEST_DURATION = 12 * 60 * 60  # 12 hours in seconds
 PREMIUM_CHAT_IDS_URL = 'https://raw.githubusercontent.com/MahmudRafi/hudaihudai/main/chat_ids.txt'
 
