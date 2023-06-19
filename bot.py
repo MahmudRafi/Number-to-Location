@@ -45,27 +45,31 @@ def handle_message(update, context):
                 minutes_left = (seconds_left % 3600) // 60
                 seconds_left = seconds_left % 60
 
-                # Send a message with countdown animation
-                countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request."
+                # Send a message indicating the user needs to wait before making another request
+                countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left:02d} before making another request."
+                waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_message)
 
-                # Send the waiting message
-                waiting_message = context.bot.send_message(chat_id=update.effective_chat.id, text=countdown_animation)
+                # Update the message at regular intervals
+                while seconds_left > 0:
+                    seconds_left -= 1
+                    hours_left = seconds_left // 3600
+                    minutes_left = (seconds_left % 3600) // 60
+                    seconds_left_display = seconds_left % 60
 
-                # Animate the countdown message
-                for seconds in range(int(hours_left * 3600 + minutes_left * 60 + seconds_left), 0, -1):
-                    seconds_left = seconds % 60
-                    minutes_left = (seconds // 60) % 60
-                    hours_left = seconds // 3600
-                    countdown_animation = f"⏳ Please wait for {hours_left:02}:{minutes_left:02}:{seconds_left:02} before making another request."
-                    context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_animation)
+                    countdown_message = f"⏳ Please wait for {hours_left:02d}:{minutes_left:02d}:{seconds_left_display:02d} before making another request."
+                    context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_message)
                     time.sleep(1)
 
-                # Delete the countdown animation message
+                # Delete the countdown message
                 context.bot.delete_message(chat_id=update.effective_chat.id, message_id=waiting_message.message_id)
 
-            # Update the user's last request time and request count
-            user.last_request_time = current_time
-            user.request_count += 1
+                # Update the user's last request time and request count
+                user.last_request_time = current_time
+                user.request_count += 1
+            else:
+                # Update the user's last request time and request count
+                user.last_request_time = current_time
+                user.request_count += 1
         else:
             is_premium = chat_id in premium_chat_ids
             # Create a new user entry
@@ -88,10 +92,10 @@ def handle_message(update, context):
         # Send the formatted result
         context.bot.send_message(chat_id=update.effective_chat.id, text=formatted_result)
 
+        # Send the premium upgrade message to free users
         if not user.is_premium:
-            # Send the chat ID message
-            chat_id_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium. Or you can only extract 2 locations every 12 hours."
-            context.bot.send_message(chat_id=update.effective_chat.id, text=chat_id_message)
+            premium_upgrade_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium. Or you can only extract 2 locations every 12 hours."
+            context.bot.send_message(chat_id=update.effective_chat.id, text=premium_upgrade_message)
     else:
         error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits. Ex. 01000000000'
         context.bot.send_message(chat_id=update.effective_chat.id, text=error_message)
