@@ -5,11 +5,11 @@ import json
 import time
 
 TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
-FREE_REQUEST_LIMIT = 2
 FREE_REQUEST_DURATION = 12 * 60 * 60  # 12 hours in seconds
+PREMIUM_CHAT_IDS_URL = 'https://raw.githubusercontent.com/MahmudRafi/hudaihudai/main/chat_ids.txt'
 
 class User:
-    def __init__(self, chat_id, is_premium=False, last_request_time=0, request_count=0):
+    def __init__(self, chat_id, is_premium, last_request_time, request_count):
         self.chat_id = chat_id
         self.is_premium = is_premium
         self.last_request_time = last_request_time
@@ -17,53 +17,45 @@ class User:
 
 users = {}
 
+def fetch_premium_chat_ids():
+    response = requests.get(PREMIUM_CHAT_IDS_URL)
+    chat_ids = response.text.strip().split('\n')
+    return chat_ids
+
 def start(update, context):
     welcome_message = '''🤖📱 Welcome! I'm the "Number Locator" Bot! Please provide a phone number for investigation like "01*********".
 Remember, the number should be from Airtel or Robi. Let's uncover its location! 🌍🔍
 Developer @Mahmud_Rafi'''
     context.bot.send_message(chat_id=update.effective_chat.id, text=welcome_message)
 
-    # Send the permission request message with the chat ID
-    permission_message = f'📢 To use this bot, please copy this chat ID: {update.effective_chat.id} and send it to @Mahmud_Rafi.'
-    context.bot.send_message(chat_id=update.effective_chat.id, text=permission_message)
-
 def handle_message(update, context):
-    chat_id = str(update.effective_chat.id)
-
-    # Fetch the allowed chat IDs from the GitHub repository
-    response = requests.get('https://raw.githubusercontent.com/MahmudRafi/hudaihudai/main/chat_ids.txt')
-    allowed_chat_ids = response.text.strip().split('\n')
-
-    if chat_id not in allowed_chat_ids:
-        # Send a message indicating the user doesn't have permission
-        permission_denied_message = f"⛔️ Oops! You don't have permission to use this bot. But don't worry, there's a way to gain access! ✨✉️\n\nTo unlock the power of this bot, all you need to do is copy your Chat ID:\n\n{chat_id}\n\nand send it to @Mahmud_Rafi. Once @Mahmud_Rafi accepts you, magic will happen, and you'll receive access to use this bot's hidden secrets! 🗝️🔓💫"
-        context.bot.send_message(chat_id=update.effective_chat.id, text=permission_denied_message)
-        return
-
     phone_number = update.message.text.strip()
     if phone_number.startswith('01') and len(phone_number) == 11:
-        user = users.get(chat_id)
-        if user:
-            if not user.is_premium and user.request_count >= FREE_REQUEST_LIMIT:
-                # Send a message to get premium subscription
-                message = f"⚠️ You have reached the limit of {FREE_REQUEST_LIMIT} free requests within {FREE_REQUEST_DURATION // 3600} hours. To continue using the service, please contact @Mahmud_Rafi to upgrade to premium subscription. You can request again after {time_left(user.last_request_time)} hours."
+        chat_id = str(update.effective_chat.id)
+
+        current_time = time.time()
+
+        if chat_id in users:
+            user = users[chat_id]
+
+            if not user.is_premium and user.request_count >= 2 and current_time - user.last_request_time < FREE_REQUEST_DURATION:
+                # Calculate the time left until the user can make another request
+                seconds_left = FREE_REQUEST_DURATION - (current_time - user.last_request_time)
+                hours_left = seconds_left // 3600
+                minutes_left = (seconds_left % 3600) // 60
+
+                # Send a message indicating the user needs to wait before making another request
+                message = f"⏳ Please wait for {hours_left} hours and {minutes_left} minutes before making another request."
                 context.bot.send_message(chat_id=update.effective_chat.id, text=message)
                 return
 
-            # Check the request time limit
-            current_time = time.time()
-            if current_time - user.last_request_time < FREE_REQUEST_DURATION:
-                # Send a message indicating the remaining time
-                message = f"⏳ You have recently made a request. Please wait for {time_left(user.last_request_time)} hours before making another request."
-                context.bot.send_message(chat_id=update.effective_chat.id, text=message)
-                return
-
-            # Update the user's request count and time
-            user.request_count += 1
+            # Update the user's last request time and request count
             user.last_request_time = current_time
+            user.request_count += 1
         else:
+            is_premium = chat_id in premium_chat_ids
             # Create a new user entry
-            user = User(chat_id, False, time.time(), 1)
+            user = User(chat_id, is_premium=is_premium, last_request_time=current_time, request_count=1)
             users[chat_id] = user
 
         api_url = f'https://api.cybersh.xyz/siminfo.php?key=ST&number={phone_number}'
@@ -86,53 +78,68 @@ def handle_message(update, context):
         context.bot.send_message(chat_id=update.effective_chat.id, text=error_message)
 
 def format_api_result(api_result, is_premium):
-    number = api_result["number"]
-    imei = api_result["imei"]
-    imsi = api_result["imsi"]
-    division = api_result["division"]
-    district = api_result["district"]
-    region = api_result["region"]
-    thana = api_result["thana"]
-    union = api_result["union"]
-    sector = api_result["sector"]
-    lat = api_result["lat"]
-    lon = api_result["lon"]
-    coverage = api_result["coverage"]
-    update = api_result["update"]
-    loc = api_result["loc"]
+    if 'siminfo' in api_result:
+        sim_info = api_result['siminfo']
 
-    result_message = f'''📱 Number: {number}
+        number = sim_info.get('number', 'Not available')
+        imei = sim_info.get('imei', 'Not available')
+        imsi = sim_info.get('imsi', 'Not available')
+        division = sim_info.get('division', 'Not available')
+        district = sim_info.get('district', 'Not available')
+        region = sim_info.get('region', 'Not available')
+        thana = sim_info.get('thana', 'Not available')
+        union = sim_info.get('union', 'Not available')
+        sector = sim_info.get('sector', 'Not available')
+        lat = sim_info.get('lat', 'Not available')
+        lon = sim_info.get('lon', 'Not available')
+        coverage = sim_info.get('coverage', 'Not available')
+        update = sim_info.get('update', 'Not available')
+
+        google_maps_link = get_google_maps_link(lat, lon)
+
+        # Add premium user indication
+        if is_premium:
+            user_type = 'Premium User 🌟'
+        else:
+            user_type = 'Free User'
+
+        formatted_result = f'''📱 Number: {number}
+🌟 User Type: {user_type}
 🆔 IMEI: {imei}
-📇 IMSI: {imsi}
+🆔 IMSI: {imsi}
 🌍 Division: {division}
 🏢 District: {district}
-🗺️ Region: {region}
+🌐 Region: {region}
 📍 Thana: {thana}
-🌐 Union: {union}
-🔍 Sector: {sector}
-🗺️ Latitude: {lat}
-🗺️ Longitude: {lon}
-📡 Coverage: {coverage}
-⏰ Last Update: {update}
-🌍 Location: {loc}'''
+🌆 Union: {union}
+🏙️ Sector: {sector}
+🌍 Coverage: {coverage}
+🕒 Update: {update}
+🗺️ Google Maps: {google_maps_link}'''
 
-    if is_premium:
-        result_message = "🌟 Premium User 🌟\n\n" + result_message
+        return formatted_result
 
-    return result_message
+    return 'No information available for the provided number.'
 
-def time_left(last_request_time):
-    remaining_time = FREE_REQUEST_DURATION - (time.time() - last_request_time)
-    hours = int(remaining_time // 3600)
-    return hours
+def get_google_maps_link(lat, lon):
+    return f'https://google.com/maps/search/?api=1&query={lat},{lon}'
 
 def main():
+    global premium_chat_ids
+    premium_chat_ids = fetch_premium_chat_ids()
+
     updater = Updater(TOKEN, use_context=True)
-    dp = updater.dispatcher
+    dispatcher = updater.dispatcher
 
-    dp.add_handler(CommandHandler('start', start))
-    dp.add_handler(MessageHandler(Filters.text, handle_message))
+    # Define handlers
+    start_handler = CommandHandler('start', start)
+    message_handler = MessageHandler(Filters.text & (~Filters.command), handle_message)
 
+    # Add handlers to dispatcher
+    dispatcher.add_handler(start_handler)
+    dispatcher.add_handler(message_handler)
+
+    # Start the bot
     updater.start_polling()
     updater.idle()
 
