@@ -65,7 +65,7 @@ def handle_message(update, context):
 
                 # Update the user's last request time and request count
                 user.last_request_time = current_time
-                user.request_count += 1
+                user.request_count = 1
             else:
                 # Update the user's last request time and request count
                 user.last_request_time = current_time
@@ -136,29 +136,34 @@ def format_api_result(api_result, is_premium):
 🌐 Region: {region}
 📍 Thana: {thana}
 🌆 Union: {union}
-🏢 Sector: {sector}
-🌐 Coverage: {coverage}
-🗺️ Google Maps: {google_maps_link}
-🔄 Last Update: {update}'''
+🏙️ Sector: {sector}
+🌍 Coverage: {coverage}
+🔄 Last Update: {update}
+🗺️ Google Maps: {google_maps_link}'''
 
         return formatted_result
     else:
-        return 'No information available for this number. Please try again later.'
+        return 'No information available for this number.'
 
 def get_google_maps_link(lat, lon):
     if lat != 'Not available' and lon != 'Not available':
-        return f'https://www.google.com/maps/search/?api=1&query={lat},{lon}'
+        return f'https://maps.google.com/?q={lat},{lon}'
     else:
         return 'Not available'
 
 def main():
     updater = Updater(token=TOKEN, use_context=True)
     dispatcher = updater.dispatcher
+
+    # Add handlers
     start_handler = CommandHandler('start', start)
     message_handler = MessageHandler(Filters.text & ~Filters.command, handle_message)
     dispatcher.add_handler(start_handler)
     dispatcher.add_handler(message_handler)
+
+    # Start the bot
     updater.start_polling()
+    updater.idle()
 
 if __name__ == '__main__':
     main()
