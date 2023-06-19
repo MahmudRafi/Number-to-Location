@@ -40,7 +40,7 @@ def handle_message(update, context):
 
             if not user.is_premium and user.request_count >= 2 and current_time - user.last_request_time < FREE_REQUEST_DURATION:
                 # Calculate the time left until the user can make another request
-                seconds_left = FREE_REQUEST_DURATION - (current_time - user.last_request_time)
+                seconds_left = int(FREE_REQUEST_DURATION - (current_time - user.last_request_time))
                 hours_left = seconds_left // 3600
                 minutes_left = (seconds_left % 3600) // 60
 
@@ -56,7 +56,7 @@ def handle_message(update, context):
                     hours_left = minutes // 60
                     countdown_animation = f"⏳ Please wait for {hours_left} hours and {minutes_left} minutes before making another request."
                     context.bot.edit_message_text(chat_id=update.effective_chat.id, message_id=waiting_message.message_id, text=countdown_animation)
-                    time.sleep(1)
+                    time.sleep(60)
 
                 # Delete the countdown animation message
                 context.bot.delete_message(chat_id=update.effective_chat.id, message_id=waiting_message.message_id)
@@ -86,9 +86,10 @@ def handle_message(update, context):
         # Send the formatted result
         context.bot.send_message(chat_id=update.effective_chat.id, text=formatted_result)
 
-        # Send the chat ID message
-        chat_id_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium."
-        context.bot.send_message(chat_id=update.effective_chat.id, text=chat_id_message)
+        if not user.is_premium:
+            # Send the chat ID message
+            chat_id_message = f"This is your Chat ID: {chat_id}, copy this chat ID and send this to @Mahmud_Rafi to be premium."
+            context.bot.send_message(chat_id=update.effective_chat.id, text=chat_id_message)
     else:
         error_message = 'Invalid phone number! Please provide a valid Bangladeshi number starting with "01" and consisting of 11 digits. Ex. 01000000000'
         context.bot.send_message(chat_id=update.effective_chat.id, text=error_message)
