@@ -138,7 +138,7 @@ def format_api_result(api_result, is_premium):
 
         return formatted_result
 
-    return 'No information available for the provided number.'
+    return '🌍 Location not found! 📍 The following reasons may be the cause of not getting the location for your given number:\n\n1️⃣ The number is not associated with Airtel or Robi 📵\n2️⃣ The network where the number is located is experiencing a slow connection 🐢\n3️⃣ The number is currently inactive 📴\n\nApologies for the inconvenience! 😔'
 
 def get_google_maps_link(lat, lon):
     return f'https://google.com/maps/search/?api=1&query={lat},{lon}'
