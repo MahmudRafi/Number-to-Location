@@ -137,8 +137,8 @@ def format_api_result(api_result, is_premium):
 🗺️ Google Maps: {google_maps_link}'''
 
         return formatted_result
-
-    return '🌍 Location not found! 📍 The following reasons may be the cause of not getting the location for your given number:\n\n1️⃣ The number is not associated with Airtel or Robi 📵\n2️⃣ The network where the number is located is experiencing a slow connection 🐢\n3️⃣ The number is currently inactive 📴\n\nApologies for the inconvenience! 😔\n\n\n💡Tip: If the number is associated with Airtel or Robi try again after few second!⏰'
+    return '🔧🚧 Bot Under Maintenance 🛠️🔧\n⚠️ We apologize for the inconvenience. The "Number Locator" Bot is currently undergoing maintenance to provide you with an even better experience. ⚙️\n✨✉️ We will notify you as soon as the bot is back online and fully operational. Stay tuned for updates! ✨✉️\nThank you for your patience and understanding. 😊'
+    #return '🌍 Location not found! 📍 The following reasons may be the cause of not getting the location for your given number:\n\n1️⃣ The number is not associated with Airtel or Robi 📵\n2️⃣ The network where the number is located is experiencing a slow connection 🐢\n3️⃣ The number is currently inactive 📴\n\nApologies for the inconvenience! 😔\n\n\n💡Tip: If the number is associated with Airtel or Robi try again after few second!⏰'
 
 def get_google_maps_link(lat, lon):
     return f'https://www.google.com/maps/place/{lat},{lon}'
