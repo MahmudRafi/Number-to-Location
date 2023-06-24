@@ -4,7 +4,7 @@ import requests
 import json
 import time
 
-TOKEN = '5933571161:AAHjX1sBG0mlEwQXVXFJUxoQwEGtkotW-J8'
+TOKEN = ''
 FREE_REQUEST_DURATION = 12 * 60 * 60  # 12 hours in seconds
 PREMIUM_CHAT_IDS_URL = 'https://raw.githubusercontent.com/MahmudRafi/hudaihudai/main/chat_ids.txt'
 
